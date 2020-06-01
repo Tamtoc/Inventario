@@ -29,50 +29,25 @@ import net.sf.jasperreports.view.JasperViewer;
  */
 public class Reporte extends javax.swing.JFrame {
 
-    private int cantidadTecnicos;
+
     private int idMantenimiento;
     private String departamento;
-    private int computadora;
     
-    public Reporte(String departamento, int computadora) {
+    private int computadoras[];
+    private String departamentos[];
+    private String marcas[];
+    private String modelos[];
+    private int idsMantenimiento[];
+    
+    public Reporte(String departamento) {
         initComponents();
         txtFecha.setText(fechaActual());
-        cantidadTecnicos = nTecnicos();
         this.departamento = departamento;
-        this.computadora = computadora;
         
         this.setLocationRelativeTo(null);
     }
     
-    public int getCantidadTecnicos() {
-        return cantidadTecnicos;
-    }
     
-    private int nTecnicos() {
-        int contador = 0;
-        try {
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-            connectionMySQL conn = new connectionMySQL();
-            Connection con = (Connection) conn.connection();
-            
-            String sql = "SELECT * from tecnico";
-            
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            
-            contador = 0;
-            while (rs.next()) {
-                contador++;
-            }
-            rs.first();
-            
-            
-        } catch(SQLException e) {
-            System.out.println(e.toString());
-        }
-        return contador;
-    }
 
     public String fechaActual() {
         Date fecha = new Date();
@@ -96,10 +71,10 @@ public class Reporte extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtADescripcion = new javax.swing.JTextArea();
-        txtIdReporte = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        btnAgregar = new javax.swing.JButton();
+        btnGenerar = new javax.swing.JButton();
         txtFecha = new javax.swing.JTextField();
+        cbxTipoReporte = new javax.swing.JComboBox<>();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -114,7 +89,7 @@ public class Reporte extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Yu Gothic Light", 0, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("ID Reporte");
+        jLabel2.setText("Tipo de Reporte");
 
         jLabel3.setFont(new java.awt.Font("Yu Gothic Light", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -122,7 +97,7 @@ public class Reporte extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Yu Gothic Light", 0, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Descripción del problema");
+        jLabel4.setText("Motivo del Reporte");
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(600, 200));
 
@@ -142,10 +117,10 @@ public class Reporte extends javax.swing.JFrame {
             }
         });
 
-        btnAgregar.setText("Agregar");
-        btnAgregar.addActionListener(new java.awt.event.ActionListener() {
+        btnGenerar.setText("Generar");
+        btnGenerar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAgregarActionPerformed(evt);
+                btnGenerarActionPerformed(evt);
             }
         });
 
@@ -153,6 +128,13 @@ public class Reporte extends javax.swing.JFrame {
         txtFecha.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtFechaActionPerformed(evt);
+            }
+        });
+
+        cbxTipoReporte.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Equipo en Mantenimiento", "Equipo Disponible" }));
+        cbxTipoReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxTipoReporteActionPerformed(evt);
             }
         });
 
@@ -170,11 +152,10 @@ public class Reporte extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addComponent(jButton1)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnAgregar))
+                            .addComponent(btnGenerar))
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(txtFecha, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(txtIdReporte, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)))
+                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbxTipoReporte, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(71, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -183,7 +164,7 @@ public class Reporte extends javax.swing.JFrame {
                 .addGap(40, 40, 40)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtIdReporte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(cbxTipoReporte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(27, 27, 27)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -195,7 +176,7 @@ public class Reporte extends javax.swing.JFrame {
                 .addGap(59, 59, 59)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(btnAgregar))
+                    .addComponent(btnGenerar))
                 .addContainerGap(170, Short.MAX_VALUE))
         );
 
@@ -241,98 +222,131 @@ public class Reporte extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_jButton1MouseClicked
 
-    private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        String idReporte = txtIdReporte.getText();
-        String descripcion = txtADescripcion.getText();
-        String fecha = txtFecha.getText();
-        int pc = this.computadora;
-        
-        int tecnicoSeleccionado = (int) (Math.random() * cantidadTecnicos) + 1;
-        String id_tecnicoSeleccionado = "";
-        int idMantenimiento = 0;
-        String depto = "";
-        String marca = "";
-        String modelo = "";
-        String nombreDepartamento = "";
-        
+    private void btnGenerarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarActionPerformed
+        String tipoReporte = cbxTipoReporte.getSelectedItem().toString();
+        String fechaReporte = txtFecha.getText();
+        String motivo = txtADescripcion.getText();
+        String where = "";
+        String where2 = "";
         
         PreparedStatement ps = null;
         PreparedStatement ps2 = null;
-        PreparedStatement ps3 = null;
-        PreparedStatement ps4 = null;
-        PreparedStatement ps5 = null;
-            ResultSet rs = null;
-            ResultSet rs2 = null;
-            ResultSet rs3 = null;
-            ResultSet rs4 = null;
-            ResultSet rs5 = null;
-            PreparedStatement ps6 = null;
-             ResultSet rs6 = null;
-            connectionMySQL conn = new connectionMySQL();
-            Connection con = (Connection) conn.connection();
-            try{
-                String sql = "SELECT * from tecnico";
-                System.out.println(this.departamento);
-                String sql3 = "SELECT * FROM departamento WHERE nombre='" + this.departamento + "' ";
-                ps3  = con.prepareStatement(sql3);
-                rs3 = ps3.executeQuery();
-                rs3.next();
-                
-                depto = rs3.getString("id");
-
-                String sql2 = "INSERT INTO mantenimiento (depto_computadora, n_computadora) VALUES ('" + depto + "', '" + pc + "')";
-                System.out.println(sql2);
-                ps = con.prepareStatement(sql);
-                ps2 = con.prepareStatement(sql2);
-       
-                rs = ps.executeQuery();
-                ps2.executeUpdate();
-                
-                int contador = 0;
-                while(rs.next() && contador < tecnicoSeleccionado) {
-                    contador++;
-                }
-                rs.first();
-                
-                String sql5 = "SELECT * from mantenimiento WHERE n_computadora= '" + pc + "'";
-                System.out.println(sql5);
-                ps5  = con.prepareStatement(sql5);
-                rs5 = ps5.executeQuery();
-                
-                rs5.next();
-                idMantenimiento = rs5.getInt("id");
-                id_tecnicoSeleccionado = rs.getString("identificador");
-                
-                String sql4 = "INSERT INTO enreparacion (id_reporte, id_tecnico, id_mantenimiento, fecha) VALUES ('" + idReporte + "', '" + id_tecnicoSeleccionado +"', '" + idMantenimiento + "', STR_TO_DATE(REPLACE('"+ fecha +"','/','.') ,GET_FORMAT(date,'EUR')))";
-                ps4 = con.prepareStatement(sql4);
-                ps4.executeUpdate();
-                
-                String sql6 = "SELECT * FROM computadora WHERE n_inventario='" + this.computadora + "' ";
-                ps6 = con.prepareStatement(sql6);
-                rs6 = ps6.executeQuery();
-                
-                rs6.next();
-                marca = rs6.getString("marca");
-                modelo = rs6.getString("modelo");
-                
-        } catch (SQLException ex) {
-            Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-            
-        try {
-            JasperReport reporte = (JasperReport) JRLoader.loadObject(getClass().getResource("/Reporte/Reporte_mantenimiento.jasper"));
-            JasperPrint jprint = JasperFillManager.fillReport(reporte, null, new ComputadoraDataSource(idReporte, descripcion, fecha, this.computadora, id_tecnicoSeleccionado, idMantenimiento, this.departamento, marca, modelo));
-            
-            JasperViewer view = new JasperViewer(jprint, false);
-            view.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            view.setVisible(true);
-        } catch (JRException ex) {
-            Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+        ResultSet rs = null;
+        ResultSet rs2 = null;
+        
+        connectionMySQL conn = new connectionMySQL();
+        Connection con = (Connection) conn.connection();
+        
+        if(!this.departamento.equals("")) {
+            where = "WHERE depto_computadora='"+this.departamento+"' ";
+            where2 = " AND departamento='"+this.departamento+"' AND departamento.id='"+this.departamento+"'";
+        } else {
+            System.out.println("Modo administador");
         }
+        
+        if(tipoReporte.equals("Equipo en Mantenimiento")) {
+            try {
+                String sql = "SELECT * FROM mantenimiento "+ where;
+                ps  = con.prepareStatement(sql);
+                rs = ps.executeQuery();
+                String sql2 = "SELECT * FROM computadora, departamento WHERE estado='bad' AND departamento=id" + where2;
+                ps2 = con.prepareStatement(sql2);
+                rs2 = ps2.executeQuery();
+
+                int i = 0;
+                while(rs.next()) {
+                    i++;
+                }
+                rs.beforeFirst();
+
+                this.computadoras = new int [i];
+                this.idsMantenimiento = new int[i];
+                this.departamentos = new String[i];
+                this.marcas = new String[i];
+                this.modelos = new String[i];
+                
+                int j = 0;
+                while(rs.next() && rs2.next()) {
+                    this.computadoras[j] = rs.getInt("n_computadora");
+                    this.idsMantenimiento[j] = rs.getInt("id");
+                    this.departamentos[j] = rs2.getString("nombre");
+                    this.marcas[j] = rs2.getString("marca");
+                    this.modelos[j] = rs2.getString("modelo");
+                    System.out.println(computadoras[j]);
+                    System.out.println(idsMantenimiento[j]);
+                    System.out.println(departamentos[j]);
+                    System.out.println(marcas[j]);
+                    System.out.println(modelos[j]);
+                    j++;
+                }
+
+            } catch (SQLException ex) {
+                Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            try {
+                JasperReport reporte = (JasperReport) JRLoader.loadObject(getClass().getResource("/Reporte/Reporte_mantenimiento.jasper"));
+                JasperPrint jprint = JasperFillManager.fillReport(reporte, null, new ComputadoraDataSource(motivo, fechaReporte, this.computadoras, this.departamentos, this.marcas, this.modelos));
+
+                JasperViewer view = new JasperViewer(jprint, false);
+                view.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                view.setVisible(true);
+            } catch (JRException ex) {
+                Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } else if(tipoReporte.equals("Equipo Disponible")) {
+            try {
+                System.out.println("Equipo disponible");
+                String sql2 = "SELECT * FROM computadora, departamento WHERE estado='ok' AND departamento=id" + where2;
+                ps2 = con.prepareStatement(sql2);
+                rs2 = ps2.executeQuery();
+                
+                int i = 0;
+                while(rs2.next()) {
+                    i++;
+                }
+                rs2.beforeFirst();
+                
+                this.computadoras = new int [i];
+                this.departamentos = new String[i];
+                this.marcas = new String[i];
+                this.modelos = new String[i];
+                
+                int j = 0;
+                while(rs2.next()) {
+                    computadoras[j] = rs2.getInt("n_inventario");
+                    departamentos[j] = rs2.getString("nombre");
+                    marcas[j] = rs2.getString("marca");
+                    modelos[j] = rs2.getString("modelo");
+    
+                    j++;
+                }
+                
+                try {
+                    JasperReport reporte = (JasperReport) JRLoader.loadObject(getClass().getResource("/Reporte/Reporte_disponible.jasper"));
+                    JasperPrint jprint = JasperFillManager.fillReport(reporte, null, new ComputadoraDataSource(motivo, fechaReporte, this.computadoras, this.departamentos, this.marcas, this.modelos));
+
+                    JasperViewer view = new JasperViewer(jprint, false);
+                    view.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    view.setVisible(true);
+                } catch (JRException ex) {
+                    Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
             
             this.setVisible(false);
             
-    }//GEN-LAST:event_btnAgregarActionPerformed
+    }//GEN-LAST:event_btnGenerarActionPerformed
+
+    private void cbxTipoReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTipoReporteActionPerformed
+        
+    }//GEN-LAST:event_cbxTipoReporteActionPerformed
 
     /**
      * @param args the command line arguments
@@ -364,13 +378,14 @@ public class Reporte extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                
+                new Reporte("abcdefg").setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAgregar;
+    private javax.swing.JButton btnGenerar;
+    private javax.swing.JComboBox<String> cbxTipoReporte;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -382,6 +397,5 @@ public class Reporte extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea txtADescripcion;
     private javax.swing.JTextField txtFecha;
-    private javax.swing.JTextField txtIdReporte;
     // End of variables declaration//GEN-END:variables
 }

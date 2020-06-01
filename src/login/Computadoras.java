@@ -51,7 +51,7 @@ public class Computadoras {
         Computadoras dat = null;
         
         try{
-            String sql = "SELECT * FROM computadora WHERE departamento='"+idDepartamento+"' ";
+            String sql = "SELECT * FROM computadora WHERE departamento='"+idDepartamento+"' AND  estado='ok' ";
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
             

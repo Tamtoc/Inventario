@@ -23,7 +23,7 @@ public class connectionMySQL {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/inventario", "root", "");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/inventario_computadoras", "root", "");
             //JOptionPane.showConfirmDialog(null, "Success Connection");
             
         } catch (Exception e) {

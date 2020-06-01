@@ -17,32 +17,28 @@ public class ComputadoraDataSource implements JRDataSource{
 
     private int index;
     
-    private String idReporte;
     private String descripcion;
     private String fecha;
-    private int computadora;
-    private String tecnico;
-    private int mantenimiento;
-    private String departamento;
-    private String marca;
-    private String modelo;
+    private int[] computadora;
+    private String[] departamento;
+    private String[] marca;
+    private String[] modelo;
+    private int size;
     
-    public ComputadoraDataSource(String idReporte, String descripcion, String fecha, int computadora, String tecnico, int mantenimiento, String departamento, String marca, String modelo) {
-        this.idReporte = idReporte;
+    public ComputadoraDataSource(String descripcion, String fecha, int computadora[], String departamento[], String marca[], String modelo[]) {
         this.descripcion = descripcion;
         this.fecha = fecha;
         this.computadora = computadora;
-        this.tecnico = tecnico;
-        this.mantenimiento = mantenimiento;
         this.departamento = departamento;
         this.marca = marca;
         this.modelo = modelo;
         this.index = -1;
+        this.size = computadora.length;
     }
     @Override
     public boolean next() throws JRException {
         index++;
-        return (index < 1);
+        return (index < this.size);
     }
 
     @Override
@@ -54,33 +50,22 @@ public class ComputadoraDataSource implements JRDataSource{
         switch(fieldName) {
             
             case "n_computadora":
-                value = this.computadora;
+                value = this.computadora[index];
                 break;
-            
             case "depto_computadora":
-                value = this.departamento;
+                value = this.departamento[index];
                 break;
             
             case "marca":
-                value = this.marca;
+                value = this.marca[index];
                 break;
             case "modelo":
-                value = this.modelo;
+                value = this.modelo[index];
                 break;
             case "descripcion":
                 value = this.descripcion;
                 break;
-            case "id_reporte":
-                value = this.idReporte;
-                break;
-            case "id_tecnico":
-                value = this.tecnico;
-                break;
-            case "id_mantenimiento":
-                value = this.mantenimiento;
-                break;
                
-           
         }
         return value;
     }

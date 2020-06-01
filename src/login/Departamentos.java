@@ -74,4 +74,37 @@ public class Departamentos {
         return datos;
     }
     
+    public Vector<Departamentos> mostrarDepartamentos(String departamento) {
+         PreparedStatement ps = null;
+        ResultSet rs = null;
+        connectionMySQL conn = new connectionMySQL();
+        Connection con = conn.connection();
+        
+        Vector<Departamentos> datos = new Vector<Departamentos>();
+        Departamentos dat = null;
+        
+        try{
+            String sql = "SELECT * FROM departamento WHERE nombre='"+departamento+"' ";
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            
+            dat = new Departamentos();
+            dat.setId("0");
+            dat.setNombre("Selecciona departamento");
+            datos.add(dat);
+            
+            while(rs.next()) {
+                dat = new Departamentos();
+                dat.setId(rs.getString("id"));
+                dat.setNombre(rs.getString("nombre"));
+                datos.add(dat);
+            }
+            rs.close();
+            
+        } catch(SQLException e) {
+            System.out.println(e.toString());
+        }
+        return datos;
+    }
+    
 }

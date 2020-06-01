@@ -48,11 +48,40 @@ public class LogIn extends javax.swing.JFrame {
                 resultado = 1;
 
                 if(resultado == 1) {
-                    // Aqui llamamos a la proxima Interfaz
-                    JOptionPane.showMessageDialog(null, "Success " + txtUsuario.getText());
-                    Principal p = new Principal();
-                    p.setVisible(true);
-                    this.dispose();
+                    
+                    String tipo_usuario = (String)rs.getObject("tipo");
+                    String id_usuario = (String)rs.getObject("id");
+                    if(tipo_usuario.equals("jefe")) {
+                        String departamento = "";
+                        String id_depto = "";
+                        String sql2 = "select * from departamento where jefe ='"+id_usuario+"' ";
+                        
+                        ResultSet rs2 = st.executeQuery(sql2);
+                        
+                        if(rs2.next()) {
+                            departamento = (String)rs2.getObject("nombre");
+                            id_depto = (String)rs2.getObject("id");
+                            
+                            
+                            // Aqui llamamos a la proxima Interfaz para un jefe
+                            JOptionPane.showMessageDialog(null, "Bienvenido " + txtUsuario.getText() + " al departamento de " + departamento);
+                            Registros p = new Registros(departamento, id_depto);
+                            p.setVisible(true);
+                            this.dispose();
+                        }
+                        
+                    } else if(tipo_usuario.equals("administrador")){
+                        // Aqui llamamos a la proxima Interfaz para el administrador
+                        JOptionPane.showMessageDialog(null, "Bienvenido al modo administador " + txtUsuario.getText());
+                        Registros p = new Registros();
+                        p.setVisible(true);
+                        this.dispose();
+                    } else if(tipo_usuario.equals("tecnico")) {
+                        JOptionPane.showMessageDialog(null, "Su usuario no tiene permisos de acceso");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Usuario no registrado");
+                    }
+                    
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Error de acceso, vuelva a intentar");

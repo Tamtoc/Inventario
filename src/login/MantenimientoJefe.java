@@ -8,31 +8,77 @@ package login;
 import java.sql.Connection;
 import connectionSQL.connectionMySQL;
 import java.awt.event.ItemEvent;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author georg
  */
-public class Mantenimiento extends javax.swing.JFrame {
+public class MantenimientoJefe extends javax.swing.JFrame {
     
     private int id;
+    public static String departamento = "";
+    public static String id_depto = "";
+    private int cantidadTecnicos;
     /**
      * Creates new form Mantenimiento
      */
-    public Mantenimiento() {
+    public MantenimientoJefe(String departamento, String id_depto) {
         initComponents();
         
-        Departamentos cc = new Departamentos();
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel(cc.mostrarDepartamentos());
-        cbxDepartamentos.setModel(modelo);
+        cantidadTecnicos = nTecnicos();
+        
+        this.departamento = departamento;
+        this.id_depto = id_depto;
+        
+        Computadoras pcs = new Computadoras();
+        DefaultComboBoxModel modelComputadoras = new DefaultComboBoxModel(pcs.mostrarComputadoras(id_depto));
+        cbxComputadoras.setModel(modelComputadoras);
         
         this.setLocationRelativeTo(null);
+    }
+    
+    public int getCantidadTecnicos() {
+        return cantidadTecnicos;
+    }
+    
+    private int nTecnicos() {
+        int contador = 0;
+        try {
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+            connectionMySQL conn = new connectionMySQL();
+            Connection con = (Connection) conn.connection();
+            
+            String sql = "SELECT * from tecnico";
+            
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            
+            contador = 0;
+            while (rs.next()) {
+                contador++;
+            }
+            rs.first();
+            
+            
+        } catch(SQLException e) {
+            System.out.println(e.toString());
+        }
+        return contador;
     }
     
 
@@ -48,9 +94,7 @@ public class Mantenimiento extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        cbxDepartamentos = new javax.swing.JComboBox<>();
         cbxComputadoras = new javax.swing.JComboBox<>();
         btnSiguiente = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -61,7 +105,7 @@ public class Mantenimiento extends javax.swing.JFrame {
         txtBusqueda = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(108, 122, 137));
@@ -71,26 +115,15 @@ public class Mantenimiento extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("MANTENIMIENTO");
 
-        jLabel2.setFont(new java.awt.Font("Yu Gothic Light", 0, 16)); // NOI18N
-        jLabel2.setText("Departamento:");
-
         jLabel3.setFont(new java.awt.Font("Yu Gothic Light", 0, 18)); // NOI18N
         jLabel3.setText("Computadora:");
 
-        cbxDepartamentos.setFont(new java.awt.Font("Decker", 0, 14)); // NOI18N
-        cbxDepartamentos.setToolTipText("");
-        cbxDepartamentos.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                cbxDepartamentosItemStateChanged(evt);
-            }
-        });
-        cbxDepartamentos.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbxDepartamentosActionPerformed(evt);
-            }
-        });
-
         cbxComputadoras.setFont(new java.awt.Font("Decker", 0, 14)); // NOI18N
+        cbxComputadoras.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxComputadorasActionPerformed(evt);
+            }
+        });
 
         btnSiguiente.setFont(new java.awt.Font("Yu Gothic Light", 0, 14)); // NOI18N
         btnSiguiente.setText("Siguiente");
@@ -114,8 +147,6 @@ public class Mantenimiento extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbxDepartamentos, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
                             .addComponent(jLabel3)
                             .addComponent(cbxComputadoras, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnSiguiente)))
@@ -129,17 +160,13 @@ public class Mantenimiento extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addComponent(jLabel1)
-                .addGap(48, 48, 48)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(cbxDepartamentos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
+                .addGap(41, 41, 41)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(cbxComputadoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55)
+                .addGap(60, 60, 60)
                 .addComponent(btnSiguiente)
-                .addContainerGap(231, Short.MAX_VALUE))
+                .addContainerGap(328, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -225,10 +252,6 @@ public class Mantenimiento extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cbxDepartamentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxDepartamentosActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbxDepartamentosActionPerformed
-
     private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSiguienteActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnSiguienteActionPerformed
@@ -239,9 +262,9 @@ public class Mantenimiento extends javax.swing.JFrame {
         String where = "";
         
         if(!"".equals(campo)) {
-            where = "WHERE Mantenimiento.id like id_mantenimiento AND n_computadora ='" + campo + "' AND depto_computadora=Departamento.id";
+            where = "WHERE Mantenimiento.id like id_mantenimiento AND n_computadora ='" + campo + "' AND depto_computadora=Departamento.id AND Departamento.id='"+this.id_depto+"' ";
         } else {
-            where = "WHERE Mantenimiento.id like id_mantenimiento AND depto_computadora=Departamento.id";
+            where = "WHERE Mantenimiento.id like id_mantenimiento AND depto_computadora=Departamento.id AND Departamento.id='"+this.id_depto+"' ";
         }
         
         try {
@@ -253,8 +276,7 @@ public class Mantenimiento extends javax.swing.JFrame {
             connectionMySQL conn = new connectionMySQL();
             Connection con = (Connection) conn.connection();
             
-            String sql = "SELECT n_computadora, nombre, id_reporte, id_tecnico FROM Mantenimiento, EnReparacion, Departamento " + where;
-            System.out.println(sql); 
+            String sql = "SELECT n_computadora, nombre, id_reparacion, id_tecnico FROM Mantenimiento, EnReparacion, Departamento " + where;
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
             
@@ -282,26 +304,106 @@ public class Mantenimiento extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnCargarActionPerformed
 
-    private void cbxDepartamentosItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxDepartamentosItemStateChanged
-        
-        if(evt.getStateChange() == ItemEvent.SELECTED) {
-            Departamentos dptos = (Departamentos) cbxDepartamentos.getSelectedItem();
-            Computadoras pcs = new Computadoras();
-            DefaultComboBoxModel modelComputadoras = new DefaultComboBoxModel(pcs.mostrarComputadoras(dptos.getId()));
-            cbxComputadoras.setModel(modelComputadoras);
-            
-        }
-        
-        
-    }//GEN-LAST:event_cbxDepartamentosItemStateChanged
-
     private void btnSiguienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSiguienteMouseClicked
-        String departamento = cbxDepartamentos.getSelectedItem().toString();
-        System.out.println(departamento);
+
         int computadora = Integer.parseInt(cbxComputadoras.getSelectedItem().toString());
-        System.out.println(computadora);
-        new Reporte(departamento, computadora).setVisible(true);
+        
+        int dialog = JOptionPane.YES_NO_OPTION;
+        int result = JOptionPane.showConfirmDialog(null, "¿Desea agregar el equipo a mantenimiento?", "Exit", dialog);
+        if(result == 0) {
+            connectionMySQL conn = new connectionMySQL();
+            Connection con = (Connection) conn.connection();
+
+            Random aleatorio = new Random(System.currentTimeMillis()); 
+            int tecnicoSeleccionado = aleatorio.nextInt(cantidadTecnicos);
+            String id_tecnicoSeleccionado = "";
+            int idMantenimiento = 0;
+            String depto = "";
+            String marca = "";
+            String modelo = "";
+            String nombreDepartamento = "";
+
+
+            PreparedStatement ps = null;
+            PreparedStatement ps2 = null;
+            PreparedStatement ps3 = null;
+            PreparedStatement ps4 = null;
+            PreparedStatement ps5 = null;
+            ResultSet rs = null;
+            ResultSet rs2 = null;
+            ResultSet rs3 = null;
+            ResultSet rs4 = null;
+            ResultSet rs5 = null;
+            PreparedStatement ps6 = null;
+             ResultSet rs6 = null;
+            
+            try{
+                String sql = "SELECT * from tecnico";
+                String sql3 = "SELECT * FROM departamento WHERE nombre='" + departamento + "' ";
+                ps3  = con.prepareStatement(sql3);
+                rs3 = ps3.executeQuery();
+                rs3.next();
+                
+                depto = rs3.getString("id");
+
+                String sql2 = "INSERT INTO mantenimiento (depto_computadora, n_computadora) VALUES ('" + depto + "', '" + computadora + "')";
+                ps = con.prepareStatement(sql);
+                ps2 = con.prepareStatement(sql2);
+       
+                rs = ps.executeQuery();
+                ps2.executeUpdate();
+                
+                int contador = 0;
+                while(rs.next() && contador < tecnicoSeleccionado) {
+                    contador++;
+                }
+                
+                String sql5 = "SELECT * from mantenimiento WHERE n_computadora= '" + computadora + "'";
+                ps5  = con.prepareStatement(sql5);
+                rs5 = ps5.executeQuery();
+                
+                rs5.next();
+                idMantenimiento = rs5.getInt("id");
+                id_tecnicoSeleccionado = rs.getString("identificador"); //Se saca el técnico en la posición rs que se recorrió en el while anterior
+                rs.first();
+                
+                PreparedStatement psEquipo = null;
+                ResultSet rsEquipo = null;
+                String sqlEquipo = "UPDATE computadora SET estado='bad' WHERE n_inventario='"+computadora+"'";
+                psEquipo = con.prepareStatement(sqlEquipo);
+                psEquipo.executeUpdate();
+                
+                 SecureRandom random = new SecureRandom();
+                 String text = new BigInteger(20, random).toString(32);
+                 String idReparacion = text;
+                 Date date = new Date();
+                 SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/YYYY");
+                 
+                 
+
+                String fecha = formatoFecha.format(date);
+                
+                String sql4 = "INSERT INTO enreparacion (id_reparacion, id_tecnico, id_mantenimiento, fecha) VALUES ('" + idReparacion + "', '" + id_tecnicoSeleccionado +"', '" + idMantenimiento + "', STR_TO_DATE(REPLACE('"+ fecha +"','/','.') ,GET_FORMAT(date,'EUR')))";
+                ps4 = con.prepareStatement(sql4);
+                ps4.executeUpdate();
+                
+                String sql6 = "SELECT * FROM computadora WHERE n_inventario='" + computadora + "' ";
+                ps6 = con.prepareStatement(sql6);
+                rs6 = ps6.executeQuery();
+                
+                rs6.next();
+                marca = rs6.getString("marca");
+                modelo = rs6.getString("modelo");
+                
+        } catch (SQLException ex) {
+            Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        }
     }//GEN-LAST:event_btnSiguienteMouseClicked
+
+    private void cbxComputadorasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxComputadorasActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbxComputadorasActionPerformed
 
     /**
      * @param args the command line arguments
@@ -320,20 +422,22 @@ public class Mantenimiento extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Mantenimiento.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoJefe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Mantenimiento.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoJefe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Mantenimiento.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoJefe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Mantenimiento.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoJefe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
-                new Mantenimiento().setVisible(true);
+                new MantenimientoJefe(departamento, id_depto).setVisible(true);
             }
         });
     }
@@ -342,9 +446,7 @@ public class Mantenimiento extends javax.swing.JFrame {
     private javax.swing.JButton btnCargar;
     private javax.swing.JButton btnSiguiente;
     private javax.swing.JComboBox<String> cbxComputadoras;
-    private javax.swing.JComboBox<String> cbxDepartamentos;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

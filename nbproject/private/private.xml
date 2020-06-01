@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+        <file>
+            <url>src/log4j.properties</url>
+            <bookmark id="1">
+                <name/>
+                <line>0</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/Reporte.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/MantenimientoJefe.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/Mantenimiento.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/connectionSQL/connectionMySQL.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/Departamentos.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/ComputadoraDataSource.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/LogIn.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/log4j.properties</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/Computadoras.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/pruebaPrincipal.java</file>
+            <file>file:/G:/Ingeniería%20de%20Software/ProyectoLogin/Login/src/login/Registros.java</file>
+        </group>
     </open-files>
 </project-private>

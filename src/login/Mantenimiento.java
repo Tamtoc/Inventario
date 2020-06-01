@@ -8,11 +8,19 @@ package login;
 import java.sql.Connection;
 import connectionSQL.connectionMySQL;
 import java.awt.event.ItemEvent;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -22,17 +30,49 @@ import javax.swing.table.DefaultTableModel;
 public class Mantenimiento extends javax.swing.JFrame {
     
     private int id;
+    private int cantidadTecnicos;
     /**
      * Creates new form Mantenimiento
      */
     public Mantenimiento() {
         initComponents();
+        cantidadTecnicos = nTecnicos();
         
         Departamentos cc = new Departamentos();
         DefaultComboBoxModel modelo = new DefaultComboBoxModel(cc.mostrarDepartamentos());
         cbxDepartamentos.setModel(modelo);
         
         this.setLocationRelativeTo(null);
+    }
+    
+    public int getCantidadTecnicos() {
+        return cantidadTecnicos;
+    }
+    
+    private int nTecnicos() {
+        int contador = 0;
+        try {
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+            connectionMySQL conn = new connectionMySQL();
+            Connection con = (Connection) conn.connection();
+            
+            String sql = "SELECT * from tecnico";
+            
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            
+            contador = 0;
+            while (rs.next()) {
+                contador++;
+            }
+            rs.first();
+            
+            
+        } catch(SQLException e) {
+            System.out.println(e.toString());
+        }
+        return contador;
     }
     
 
@@ -61,7 +101,7 @@ public class Mantenimiento extends javax.swing.JFrame {
         txtBusqueda = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(108, 122, 137));
@@ -253,8 +293,7 @@ public class Mantenimiento extends javax.swing.JFrame {
             connectionMySQL conn = new connectionMySQL();
             Connection con = (Connection) conn.connection();
             
-            String sql = "SELECT n_computadora, nombre, id_reporte, id_tecnico FROM Mantenimiento, EnReparacion, Departamento " + where;
-            System.out.println(sql); 
+            String sql = "SELECT n_computadora, nombre, id_reparacion, id_tecnico FROM Mantenimiento, EnReparacion, Departamento " + where;
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
             
@@ -297,10 +336,102 @@ public class Mantenimiento extends javax.swing.JFrame {
 
     private void btnSiguienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSiguienteMouseClicked
         String departamento = cbxDepartamentos.getSelectedItem().toString();
-        System.out.println(departamento);
         int computadora = Integer.parseInt(cbxComputadoras.getSelectedItem().toString());
-        System.out.println(computadora);
-        new Reporte(departamento, computadora).setVisible(true);
+        
+        int dialog = JOptionPane.YES_NO_OPTION;
+        int result = JOptionPane.showConfirmDialog(null, "¿Desea agregar el equipo a mantenimiento?", "Exit", dialog);
+        if(result == 0) {
+            connectionMySQL conn = new connectionMySQL();
+            Connection con = (Connection) conn.connection();
+
+            Random aleatorio = new Random(System.currentTimeMillis()); 
+            int tecnicoSeleccionado = aleatorio.nextInt(cantidadTecnicos);
+            String id_tecnicoSeleccionado = "";
+            int idMantenimiento = 0;
+            String depto = "";
+            String marca = "";
+            String modelo = "";
+            String nombreDepartamento = "";
+
+
+            PreparedStatement ps = null;
+            PreparedStatement ps2 = null;
+            PreparedStatement ps3 = null;
+            PreparedStatement ps4 = null;
+            PreparedStatement ps5 = null;
+            ResultSet rs = null;
+            ResultSet rs2 = null;
+            ResultSet rs3 = null;
+            ResultSet rs4 = null;
+            ResultSet rs5 = null;
+            PreparedStatement ps6 = null;
+             ResultSet rs6 = null;
+            
+            try{
+                String sql = "SELECT * from tecnico";
+                String sql3 = "SELECT * FROM departamento WHERE nombre='" + departamento + "' ";
+                ps3  = con.prepareStatement(sql3);
+                rs3 = ps3.executeQuery();
+                rs3.next();
+                
+                depto = rs3.getString("id");
+
+                String sql2 = "INSERT INTO mantenimiento (depto_computadora, n_computadora) VALUES ('" + depto + "', '" + computadora + "')";
+                ps = con.prepareStatement(sql);
+                ps2 = con.prepareStatement(sql2);
+       
+                rs = ps.executeQuery();
+                ps2.executeUpdate();
+                
+                int contador = 0;
+                while(rs.next() && contador < tecnicoSeleccionado) {
+                    contador++;
+                }
+                
+                String sql5 = "SELECT * from mantenimiento WHERE n_computadora= '" + computadora + "'";
+                ps5  = con.prepareStatement(sql5);
+                rs5 = ps5.executeQuery();
+                
+                rs5.next();
+                idMantenimiento = rs5.getInt("id");
+                id_tecnicoSeleccionado = rs.getString("identificador"); //Se saca el técnico en la posición rs que se recorrió en el while anterior
+                rs.first();
+                
+                PreparedStatement psEquipo = null;
+                ResultSet rsEquipo = null;
+                String sqlEquipo = "UPDATE computadora SET estado='bad' WHERE n_inventario='"+computadora+"'";
+                psEquipo = con.prepareStatement(sqlEquipo);
+                psEquipo.executeUpdate();
+                
+                 SecureRandom random = new SecureRandom();
+                 String text = new BigInteger(20, random).toString(32);
+                 String idReparacion = text;
+                 Date date = new Date();
+                 SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/YYYY");
+                 
+                 
+
+                String fecha = formatoFecha.format(date);
+                
+                String sql4 = "INSERT INTO enreparacion (id_reparacion, id_tecnico, id_mantenimiento, fecha) VALUES ('" + idReparacion + "', '" + id_tecnicoSeleccionado +"', '" + idMantenimiento + "', STR_TO_DATE(REPLACE('"+ fecha +"','/','.') ,GET_FORMAT(date,'EUR')))";
+                ps4 = con.prepareStatement(sql4);
+                ps4.executeUpdate();
+                
+                String sql6 = "SELECT * FROM computadora WHERE n_inventario='" + computadora + "' ";
+                ps6 = con.prepareStatement(sql6);
+                rs6 = ps6.executeQuery();
+                
+                rs6.next();
+                marca = rs6.getString("marca");
+                modelo = rs6.getString("modelo");
+                
+        } catch (SQLException ex) {
+            Logger.getLogger(Reporte.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+
+
+//new Reporte(departamento, computadora).setVisible(true);
+        }
     }//GEN-LAST:event_btnSiguienteMouseClicked
 
     /**
