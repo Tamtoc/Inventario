@@ -49,7 +49,6 @@ public class Departamentos {
         
         Vector<Departamentos> datos = new Vector<Departamentos>();
         Departamentos dat = null;
-        
         try{
             String sql = "SELECT * FROM departamento";
             ps = con.prepareStatement(sql);

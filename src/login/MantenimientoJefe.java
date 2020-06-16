@@ -33,6 +33,8 @@ public class MantenimientoJefe extends javax.swing.JFrame {
     public static String departamento = "";
     public static String id_depto = "";
     private int cantidadTecnicos;
+    connectionMySQL cmsql = new connectionMySQL();
+    Connection connection = (Connection)cmsql.connection();
     /**
      * Creates new form Mantenimiento
      */
@@ -104,6 +106,7 @@ public class MantenimientoJefe extends javax.swing.JFrame {
         btnCargar = new javax.swing.JButton();
         txtBusqueda = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -213,6 +216,15 @@ public class MantenimientoJefe extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("n. inventario");
 
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_delete_file_24px.png"))); // NOI18N
+        jButton1.setContentAreaFilled(false);
+        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -223,20 +235,27 @@ public class MantenimientoJefe extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
                         .addContainerGap())
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel5)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
-                        .addComponent(btnCargar)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel5)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(30, 30, 30)
+                                .addComponent(btnCargar)))
                         .addGap(38, 38, 38))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(79, Short.MAX_VALUE)
+                .addContainerGap(35, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(btnCargar)
@@ -405,6 +424,49 @@ public class MantenimientoJefe extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cbxComputadorasActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int fila = jtEquipoMant.getSelectedRow();
+        DefaultTableModel tm = (DefaultTableModel) jtEquipoMant.getModel();
+
+        if(fila >= 0) {
+            try {
+                String id_reporte =String.valueOf(tm.getValueAt(fila,2));
+                PreparedStatement ps_reporte = connection.prepareStatement("SELECT * FROM enreparacion WHERE id_reparacion='"+id_reporte+"' ");
+                System.out.println("1");
+                ResultSet verifica_mantenimiento = ps_reporte.executeQuery();
+                verifica_mantenimiento.first();
+                System.out.println("2");
+                int id_mantenimiento = verifica_mantenimiento.getInt("id_mantenimiento");
+                System.out.println("3");
+                String n_inventario = String.valueOf(tm.getValueAt(fila, 0));
+
+                PreparedStatement pstR = connection.prepareStatement("DELETE FROM  enreparacion WHERE id_mantenimiento=" + id_mantenimiento);
+                pstR.executeUpdate();
+                System.out.println("4");
+                PreparedStatement pstM = connection.prepareStatement("DELETE FROM  mantenimiento WHERE id=" + id_mantenimiento);
+                pstM.executeUpdate();
+                System.out.println("5");
+
+                PreparedStatement psEquipo = null;
+                ResultSet rsEquipo = null;
+                String sqlEquipo = "UPDATE computadora SET estado='ok' WHERE n_inventario='"+n_inventario+"'";
+                psEquipo = connection.prepareStatement(sqlEquipo);
+                int a = psEquipo.executeUpdate();
+
+                if (a > 0) {
+                    JOptionPane.showMessageDialog(null, "El equipo ya no esta en mantenimiento");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Error al eliminar de mantenimiento");
+                }
+                btnCargarActionPerformed(evt);
+            } catch (SQLException ex) {
+                System.out.println(ex.toString());
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Seleccione equipo");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -446,6 +508,7 @@ public class MantenimientoJefe extends javax.swing.JFrame {
     private javax.swing.JButton btnCargar;
     private javax.swing.JButton btnSiguiente;
     private javax.swing.JComboBox<String> cbxComputadoras;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
